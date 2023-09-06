@@ -1,6 +1,7 @@
 // ignore_for_file: file_names
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -107,7 +108,10 @@ class _MyHomePageState extends State<MyHomePage> {
             TextField(
               key: const Key('weightField'),
               controller: weightController,
-              keyboardType: TextInputType.number,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              inputFormatters: <TextInputFormatter> [
+                FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')) // impedir utilização de letras
+              ],
               decoration: const InputDecoration(
                 hintText: 'Exemplo: 70.5',
                 labelText: 'Peso (kg)',
@@ -118,7 +122,10 @@ class _MyHomePageState extends State<MyHomePage> {
             TextField(
               key: const Key('heightField'),
               controller: heightController,
-              keyboardType: TextInputType.number,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              inputFormatters: <TextInputFormatter> [
+                FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')) // impedir utilização de letras
+              ],
               decoration: const InputDecoration(
                 hintText: 'Exemplo: 175',
                 labelText: 'Altura (cm)',
@@ -150,7 +157,6 @@ class _MyHomePageState extends State<MyHomePage> {
               _errorMessage,
               style: const TextStyle(
                 fontSize: 16.0,
-                color: Colors.red,
               ),
               textAlign: TextAlign.center,
             ),
