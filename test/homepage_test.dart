@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:calculadora_imc/homepage.dart';
+import 'package:calculadora_imc/pages/homepage.dart';
 
 void main() {
   testWidgets('Teste de cálculo de IMC - Magreza grave', (WidgetTester tester) async {

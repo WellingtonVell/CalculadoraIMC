@@ -1,10 +1,10 @@
-// ignore_for_file: file_names
-
+import 'package:calculadora_imc/pages/imc_history_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:calculadora_imc/models/imc_result.dart';
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
+  const MyHomePage({Key? key}) : super(key: key);
 
   @override
   // ignore: library_private_types_in_public_api
@@ -18,6 +18,7 @@ class _MyHomePageState extends State<MyHomePage> {
   double _imc = 0.0;
   String _classification = '';
   String _errorMessage = '';
+  List<IMCResult> imcHistory = [];
 
   void calculateBMI() {
     String weightText = weightController.text;
@@ -28,7 +29,8 @@ class _MyHomePageState extends State<MyHomePage> {
       double height = double.parse(heightText) / 100;
 
       if (weight <= 0 || height <= 0) {
-        throw Exception("Valores inválidos. Peso e altura devem ser maiores que zero.");
+        throw Exception(
+            "Valores inválidos. Peso e altura devem ser maiores que zero.");
       }
 
       double bmi = weight / (height * height);
@@ -57,13 +59,18 @@ class _MyHomePageState extends State<MyHomePage> {
         _classification = classification;
         _errorMessage = '';
       });
+
+      final result = IMCResult(
+          imc: bmi, classification: classification, date: DateTime.now());
+      imcHistory.add(result);
     } catch (e) {
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
             title: const Text('Erro'),
-            content: const Text('Valores inválidos. Certifique-se de que peso e altura sejam números válidos.'),
+            content: const Text(
+                'Valores inválidos. Certifique-se de que peso e altura sejam números válidos.'),
             actions: <Widget>[
               TextButton(
                 onPressed: () {
@@ -78,11 +85,56 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-   @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Calculadora de IMC'),
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.deepPurple,
+              ),
+              child: Text(
+                'Opções do Menu',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.history),
+              title: const Text('Histórico'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            IMCHistoryScreen(imcHistory: imcHistory)));
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.settings),
+              title: const Text('Configurações'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.info),
+              title: const Text('Sobre'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -104,13 +156,16 @@ class _MyHomePageState extends State<MyHomePage> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20.0),
-            const Text('Informe seu peso (kg):', style: TextStyle(fontSize: 16.0)),
+            const Text('Informe seu peso (kg):',
+                style: TextStyle(fontSize: 16.0)),
             TextField(
               key: const Key('weightField'),
               controller: weightController,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              inputFormatters: <TextInputFormatter> [
-                FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')) // impedir utilização de letras
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+              inputFormatters: <TextInputFormatter>[
+                FilteringTextInputFormatter.allow(
+                    RegExp(r'^\d+\.?\d{0,2}')) // impedir utilização de letras
               ],
               decoration: const InputDecoration(
                 hintText: 'Exemplo: 70.5',
@@ -118,13 +173,16 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             const SizedBox(height: 16.0),
-            const Text('Informe sua altura (cm):', style: TextStyle(fontSize: 16.0)),
+            const Text('Informe sua altura (cm):',
+                style: TextStyle(fontSize: 16.0)),
             TextField(
               key: const Key('heightField'),
               controller: heightController,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              inputFormatters: <TextInputFormatter> [
-                FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')) // impedir utilização de letras
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+              inputFormatters: <TextInputFormatter>[
+                FilteringTextInputFormatter.allow(
+                    RegExp(r'^\d+\.?\d{0,2}')) // impedir utilização de letras
               ],
               decoration: const InputDecoration(
                 hintText: 'Exemplo: 175',
@@ -138,12 +196,14 @@ class _MyHomePageState extends State<MyHomePage> {
                 // ignore: deprecated_member_use
                 primary: Colors.deepPurple,
               ),
-              child: const Text('Calcular IMC', style: TextStyle(fontSize: 18.0)),
+              child:
+                  const Text('Calcular IMC', style: TextStyle(fontSize: 18.0)),
             ),
             const SizedBox(height: 20.0),
             Text(
               'Seu IMC é: ${_imc.toStringAsFixed(2)}',
-              style: const TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+              style:
+                  const TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 10.0),
