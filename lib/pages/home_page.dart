@@ -1,7 +1,11 @@
-import 'package:calculadora_imc/pages/imc_history_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:calculadora_imc/models/imc_result.dart';
+import 'package:calculadora_imc/widgets/app_bar.dart';
+import 'package:calculadora_imc/widgets/drawer.dart';
+import 'package:calculadora_imc/models/value_error.dart';
+import 'package:calculadora_imc/models/bmi_calculator.dart';
+import 'package:calculadora_imc/models/classification.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
@@ -19,133 +23,48 @@ class _MyHomePageState extends State<MyHomePage> {
   String _classification = '';
   String _errorMessage = '';
   List<IMCResult> imcHistory = [];
+  
+  final BMICalculator bmiCalculator = BMICalculator(); // Instancia o modelo BMICalculator
+  final Classification classification = Classification(); // Instancia a classe Classification
 
   void calculateBMI() {
     String weightText = weightController.text;
     String heightText = heightController.text;
-
+    
     try {
       double weight = double.parse(weightText);
       double height = double.parse(heightText) / 100;
 
-      if (weight <= 0 || height <= 0) {
-        throw Exception(
-            "Valores inválidos. Peso e altura devem ser maiores que zero.");
-      }
+      double bmi = bmiCalculator.calculateBMI(weight, height); // Usa o modelo para calcular o BMI
 
-      double bmi = weight / (height * height);
+      String classification = Classification.classifyBMI(bmi); // Usa a instância da classe Classification
 
-      String classification = '';
-      if (bmi < 16) {
-        classification = 'Magreza grave';
-      } else if (bmi < 17) {
-        classification = 'Magreza moderada';
-      } else if (bmi < 18.5) {
-        classification = 'Magreza leve';
-      } else if (bmi < 25) {
-        classification = 'Saudável';
-      } else if (bmi < 30) {
-        classification = 'Sobrepeso';
-      } else if (bmi < 35) {
-        classification = 'Obesidade de grau I';
-      } else if (bmi < 40) {
-        classification = 'Obesidade de grau II (severa)';
-      } else {
-        classification = 'Obesidade de grau III (mórbida)';
-      }
-
+      final result = IMCResult(
+          imc: bmi, classification: classification, date: DateTime.now());
       setState(() {
         _imc = bmi;
         _classification = classification;
         _errorMessage = '';
       });
-
-      final result = IMCResult(
-          imc: bmi, classification: classification, date: DateTime.now());
       imcHistory.add(result);
     } catch (e) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Erro'),
-            content: const Text(
-                'Valores inválidos. Certifique-se de que peso e altura sejam números válidos.'),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text('OK'),
-              ),
-            ],
-          );
-        },
-      );
+      ValueError.show(context);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Calculadora de IMC'),
-      ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.deepPurple,
-              ),
-              child: Text(
-                'Opções do Menu',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                ),
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.history),
-              title: const Text('Histórico'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            IMCHistoryScreen(imcHistory: imcHistory)));
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text('Configurações'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.info),
-              title: const Text('Sobre'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        ),
+      appBar: const MyAppBar(title: 'Calculadora IMC'),
+      drawer: MyDrawer(
+        imcHistory: imcHistory,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            const Icon(
-              Icons.calculate,
-              size: 100.0,
-              color: Colors.deepPurple,
-            ),
+            const Icon(Icons.calculate, size: 100.0, color: Colors.deepPurple),
             const SizedBox(height: 16.0),
             const Text(
               'Calculadora de Índice de Massa Corporal',
