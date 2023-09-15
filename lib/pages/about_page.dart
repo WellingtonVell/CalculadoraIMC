@@ -1,13 +1,14 @@
 import 'package:calculadora_imc/widgets/app_bar.dart';
 import 'package:flutter/material.dart';
 
+// Página "Sobre o Aplicativo"
 class AboutPage extends StatelessWidget {
   const AboutPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
-      appBar: MyAppBar(title: 'Sobre o Aplicativo'),
+      appBar: MyAppBar(title: 'Sobre o Aplicativo'), // Barra de aplicativos com título "Sobre o Aplicativo"
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
         child: Column(
