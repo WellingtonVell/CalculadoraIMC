@@ -6,11 +6,11 @@ class IMCResult {
   final DateTime date;
 
   IMCResult({
+    this.id = 0,
     required this.name,
     required this.imc,
     required this.classification,
     required this.date,
-    this.id = 0,
   });
 
   // Método para criar uma instância de IMCResult a partir de um mapa (Map)
@@ -28,6 +28,15 @@ class IMCResult {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
+      'name': name,
+      'imc': imc,
+      'classification': classification,
+      'date': date.toIso8601String(),
+    };
+  }
+
+Map<String, dynamic> toInsert() {
+    return {
       'name': name,
       'imc': imc,
       'classification': classification,

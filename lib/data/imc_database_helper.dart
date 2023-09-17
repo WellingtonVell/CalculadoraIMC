@@ -42,7 +42,7 @@ class IMCDatabaseHelper {
   Future<void> adicionarDadoIMC(
       IMCResult result, double weight, double height, String string) async {
     final db = await database;
-    await db?.insert('imc_data', result.toMap());
+    await db?.insert('imc_data', result.toInsert());
   }
 
   // Função para listar todos os resultados IMC no banco de dados
